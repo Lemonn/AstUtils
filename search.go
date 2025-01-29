@@ -1,4 +1,4 @@
-package AstSearch
+package AstUtils
 
 import "go/ast"
 
@@ -48,7 +48,7 @@ func SearchNodes(decl ast.Node, foundNodes *[]*FoundNodes, parents []*ast.Node, 
 		parents = append(parents, &decl)
 		SearchNodes(decl.(*ast.Field).Doc, foundNodes, parents, searchFunction, completed)
 		if decl.(*ast.Field).Names != nil {
-			for i, _ := range decl.(*ast.Field).Names {
+			for i := range decl.(*ast.Field).Names {
 				SearchNodes(decl.(*ast.Field).Names[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
@@ -60,7 +60,7 @@ func SearchNodes(decl ast.Node, foundNodes *[]*FoundNodes, parents []*ast.Node, 
 			return
 		}
 		if decl.(*ast.FieldList).List != nil {
-			for i, _ := range decl.(*ast.FieldList).List {
+			for i := range decl.(*ast.FieldList).List {
 				SearchNodes(decl.(*ast.FieldList).List[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
@@ -96,7 +96,7 @@ func SearchNodes(decl ast.Node, foundNodes *[]*FoundNodes, parents []*ast.Node, 
 		}
 		SearchNodes(decl.(*ast.CompositeLit).Type, foundNodes, parents, searchFunction, completed)
 		if decl.(*ast.CompositeLit).Elts != nil {
-			for i, _ := range decl.(*ast.CompositeLit).Elts {
+			for i := range decl.(*ast.CompositeLit).Elts {
 				SearchNodes(decl.(*ast.CompositeLit).Elts[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
@@ -123,7 +123,7 @@ func SearchNodes(decl ast.Node, foundNodes *[]*FoundNodes, parents []*ast.Node, 
 		}
 		SearchNodes(decl.(*ast.IndexListExpr).X, foundNodes, parents, searchFunction, completed)
 		if decl.(*ast.IndexListExpr).Indices != nil {
-			for i, _ := range decl.(*ast.IndexListExpr).Indices {
+			for i := range decl.(*ast.IndexListExpr).Indices {
 				SearchNodes(decl.(*ast.IndexListExpr).Indices[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
@@ -147,7 +147,7 @@ func SearchNodes(decl ast.Node, foundNodes *[]*FoundNodes, parents []*ast.Node, 
 		}
 		SearchNodes(decl.(*ast.CallExpr).Fun, foundNodes, parents, searchFunction, completed)
 		if decl.(*ast.CallExpr).Args != nil {
-			for i, _ := range decl.(*ast.CallExpr).Args {
+			for i := range decl.(*ast.CallExpr).Args {
 				SearchNodes(decl.(*ast.CallExpr).Args[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
@@ -244,12 +244,12 @@ func SearchNodes(decl ast.Node, foundNodes *[]*FoundNodes, parents []*ast.Node, 
 			return
 		}
 		if decl.(*ast.AssignStmt).Rhs != nil {
-			for i, _ := range decl.(*ast.AssignStmt).Rhs {
+			for i := range decl.(*ast.AssignStmt).Rhs {
 				SearchNodes(decl.(*ast.AssignStmt).Rhs[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
 		if decl.(*ast.AssignStmt).Lhs != nil {
-			for i, _ := range decl.(*ast.AssignStmt).Lhs {
+			for i := range decl.(*ast.AssignStmt).Lhs {
 				SearchNodes(decl.(*ast.AssignStmt).Lhs[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
@@ -268,7 +268,7 @@ func SearchNodes(decl ast.Node, foundNodes *[]*FoundNodes, parents []*ast.Node, 
 			return
 		}
 		if decl.(*ast.ReturnStmt).Results != nil {
-			for i, _ := range decl.(*ast.ReturnStmt).Results {
+			for i := range decl.(*ast.ReturnStmt).Results {
 				SearchNodes(decl.(*ast.ReturnStmt).Results[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
@@ -282,7 +282,7 @@ func SearchNodes(decl ast.Node, foundNodes *[]*FoundNodes, parents []*ast.Node, 
 			return
 		}
 		if decl.(*ast.BlockStmt).List != nil {
-			for i, _ := range decl.(*ast.BlockStmt).List {
+			for i := range decl.(*ast.BlockStmt).List {
 				SearchNodes(decl.(*ast.BlockStmt).List[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
@@ -296,12 +296,12 @@ func SearchNodes(decl ast.Node, foundNodes *[]*FoundNodes, parents []*ast.Node, 
 			return
 		}
 		if decl.(*ast.CaseClause).List != nil {
-			for i, _ := range decl.(*ast.CaseClause).List {
+			for i := range decl.(*ast.CaseClause).List {
 				SearchNodes(decl.(*ast.CaseClause).List[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
 		if decl.(*ast.CaseClause).Body != nil {
-			for i, _ := range decl.(*ast.CaseClause).Body {
+			for i := range decl.(*ast.CaseClause).Body {
 				SearchNodes(decl.(*ast.CaseClause).Body[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
@@ -325,7 +325,7 @@ func SearchNodes(decl ast.Node, foundNodes *[]*FoundNodes, parents []*ast.Node, 
 		}
 		SearchNodes(decl.(*ast.CommClause).Comm, foundNodes, parents, searchFunction, completed)
 		if decl.(*ast.CommClause).Body != nil {
-			for i, _ := range decl.(*ast.CommClause).Body {
+			for i := range decl.(*ast.CommClause).Body {
 				SearchNodes(decl.(*ast.CommClause).Body[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
@@ -364,13 +364,13 @@ func SearchNodes(decl ast.Node, foundNodes *[]*FoundNodes, parents []*ast.Node, 
 		}
 		SearchNodes(decl.(*ast.ValueSpec).Doc, foundNodes, parents, searchFunction, completed)
 		if decl.(*ast.ValueSpec).Names != nil {
-			for i, _ := range decl.(*ast.ValueSpec).Names {
+			for i := range decl.(*ast.ValueSpec).Names {
 				SearchNodes(decl.(*ast.ValueSpec).Names[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
 		SearchNodes(decl.(*ast.ValueSpec).Type, foundNodes, parents, searchFunction, completed)
 		if decl.(*ast.ValueSpec).Values != nil {
-			for i, _ := range decl.(*ast.ValueSpec).Values {
+			for i := range decl.(*ast.ValueSpec).Values {
 				SearchNodes(decl.(*ast.ValueSpec).Values[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
@@ -395,7 +395,7 @@ func SearchNodes(decl ast.Node, foundNodes *[]*FoundNodes, parents []*ast.Node, 
 		}
 		SearchNodes(decl.(*ast.GenDecl).Doc, foundNodes, parents, searchFunction, completed)
 		if decl.(*ast.GenDecl).Specs != nil {
-			for i, _ := range decl.(*ast.GenDecl).Specs {
+			for i := range decl.(*ast.GenDecl).Specs {
 				SearchNodes(decl.(*ast.GenDecl).Specs[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
@@ -415,22 +415,22 @@ func SearchNodes(decl ast.Node, foundNodes *[]*FoundNodes, parents []*ast.Node, 
 		SearchNodes(decl.(*ast.File).Doc, foundNodes, parents, searchFunction, completed)
 		SearchNodes(decl.(*ast.File).Name, foundNodes, parents, searchFunction, completed)
 		if decl.(*ast.File).Decls != nil {
-			for i, _ := range decl.(*ast.File).Decls {
+			for i := range decl.(*ast.File).Decls {
 				SearchNodes(decl.(*ast.File).Decls[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
 		if decl.(*ast.File).Imports != nil {
-			for i, _ := range decl.(*ast.File).Imports {
+			for i := range decl.(*ast.File).Imports {
 				SearchNodes(decl.(*ast.File).Imports[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
 		if decl.(*ast.File).Unresolved != nil {
-			for i, _ := range decl.(*ast.File).Unresolved {
+			for i := range decl.(*ast.File).Unresolved {
 				SearchNodes(decl.(*ast.File).Unresolved[i], foundNodes, parents, searchFunction, completed)
 			}
 		}
 		if decl.(*ast.File).Comments != nil {
-			for i, _ := range decl.(*ast.File).Comments {
+			for i := range decl.(*ast.File).Comments {
 				SearchNodes(decl.(*ast.File).Comments[i], foundNodes, parents, searchFunction, completed)
 			}
 		}

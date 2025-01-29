@@ -1,4 +1,4 @@
-package AstSearch
+package AstUtils
 
 import (
 	"go/ast"
@@ -60,7 +60,7 @@ func AddMissingImports(file *ast.File, imports []string) {
 	}
 	for i, decl := range file.Decls {
 		if GenDecl, ok := decl.(*ast.GenDecl); ok && GenDecl.Tok == token.IMPORT {
-			for imp, _ := range requiredImports {
+			for imp := range requiredImports {
 				file.Decls[i].(*ast.GenDecl).Specs = append(file.Decls[i].(*ast.GenDecl).Specs, &ast.ImportSpec{
 					Path: &ast.BasicLit{
 						Kind:  token.STRING,

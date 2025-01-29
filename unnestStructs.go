@@ -1,4 +1,4 @@
-package AstSearch
+package AstUtils
 
 import (
 	"go/ast"
