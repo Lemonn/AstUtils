@@ -48,30 +48,80 @@ func AddMissingImports(file *ast.File, imports []string) {
 	for _, imp := range imports {
 		requiredImports[imp] = true
 	}
-	for _, decl := range file.Decls {
-		if GenDecl, ok := decl.(*ast.GenDecl); ok && GenDecl.Tok == token.IMPORT {
-			for _, spec := range GenDecl.Specs {
-				if BasicLit, ok := spec.(*ast.ImportSpec); ok {
-					if _, ok := requiredImports[strings.ReplaceAll(BasicLit.Path.Value, "\"", "")]; ok {
-						delete(requiredImports, strings.ReplaceAll(BasicLit.Path.Value, "\"", ""))
+
+	var importSpecs []*FoundNodes
+	var completed bool
+	SearchNodes(file, &importSpecs, []*ast.Node{}, func(n *ast.Node, parents []*ast.Node, completed *bool) bool {
+		if _, ok := (*n).(*ast.ImportSpec); ok {
+			return true
+		}
+		return false
+	}, &completed)
+
+	for i, spec := range importSpecs {
+		for i2, parent := range spec.Parents {
+			if _, ok := (*parent).(*ast.GenDecl); ok {
+				for i3, _ := range file.Decls {
+					if (*importSpecs[i].Parents[i2]).(*ast.GenDecl) == file.Decls[i3] {
+						file.Decls[i3] = file.Decls[len(file.Decls)-1]
+						file.Decls = file.Decls[:len(file.Decls)-1]
+						break
 					}
 				}
 			}
 		}
-	}
-	for i, decl := range file.Decls {
-		if GenDecl, ok := decl.(*ast.GenDecl); ok && GenDecl.Tok == token.IMPORT {
-			for imp := range requiredImports {
-				file.Decls[i].(*ast.GenDecl).Specs = append(file.Decls[i].(*ast.GenDecl).Specs, &ast.ImportSpec{
-					Path: &ast.BasicLit{
-						Kind:  token.STRING,
-						Value: "\"" + imp + "\"",
-					},
-				},
-				)
-			}
+		if _, ok := requiredImports[strings.ReplaceAll((*spec.Node).(*ast.ImportSpec).Path.Value, "\"", "")]; ok {
+			delete(requiredImports, strings.ReplaceAll((*spec.Node).(*ast.ImportSpec).Path.Value, "\"", ""))
 		}
 	}
+	var specs []ast.Spec
+	for importString, _ := range requiredImports {
+		specs = append(specs, &ast.ImportSpec{
+			Path: &ast.BasicLit{
+				Kind:  token.STRING,
+				Value: "\"" + importString + "\"",
+			},
+		})
+	}
+	var _ = &ast.GenDecl{
+		Tok: token.IMPORT,
+		Specs: []ast.Spec{
+			&ast.ImportSpec{
+				Path: &ast.BasicLit{
+					Kind:  token.STRING,
+					Value: "\"encoding/json\"",
+				},
+			},
+			&ast.ImportSpec{
+				Path: &ast.BasicLit{
+					Kind:  token.STRING,
+					Value: "\"errors\"",
+				},
+			},
+			&ast.ImportSpec{
+				Path: &ast.BasicLit{
+					Kind:  token.STRING,
+					Value: "\"fmt\"",
+				},
+			},
+			&ast.ImportSpec{
+				Path: &ast.BasicLit{
+					Kind:  token.STRING,
+					Value: "\"github.com/google/uuid\"",
+				},
+			},
+			&ast.ImportSpec{
+				Path: &ast.BasicLit{
+					Kind:  token.STRING,
+					Value: "\"time\"",
+				},
+			},
+		},
+	}
+	file.Decls = append([]ast.Decl{&ast.GenDecl{
+		Tok:   token.IMPORT,
+		Specs: specs,
+	}}, file.Decls...)
 }
 
 func ReplaceImports(file *ast.File, imports []string) {
@@ -125,8 +175,8 @@ func IsBasicField(field *ast.Field) bool {
 
 func ExtractTagsByKey(tag *ast.BasicLit, valueMap ...map[string][]string) map[string][]string {
 	var found map[string][]string
-	if valueMap == nil || len(valueMap) == 0 {
-		found = map[string][]string{}
+	if valueMap == nil || len(valueMap) == 0 || valueMap[0] == nil {
+		found = make(map[string][]string)
 	} else {
 		found = valueMap[0]
 	}
@@ -138,7 +188,7 @@ func ExtractTagsByKey(tag *ast.BasicLit, valueMap ...map[string][]string) map[st
 	for _, s := range tags {
 		v := strings.SplitN(strings.ReplaceAll(s, "\"", ""), ":", 2)
 		if len(v) == 1 {
-			v = append(v, "")
+			continue
 		}
 		if _, ok := found[v[0]]; !ok {
 			found[v[0]] = []string{v[1]}
