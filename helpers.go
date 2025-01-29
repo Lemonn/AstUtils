@@ -1,6 +1,7 @@
 package AstUtils
 
 import (
+	"errors"
 	"go/ast"
 	"go/token"
 	"regexp"
@@ -153,17 +154,24 @@ func GetTagValue(tag string, tagKey string) string {
 	tags := strings.Split(tag, " ")
 	for _, s := range tags {
 		s = strings.ReplaceAll(s, "\"", "")
-		s = strings.ReplaceAll(s, ",omitempty", "")
 		ss := strings.Split(s, ":")
 		if len(ss) > 1 && ss[0] == tagKey {
 			return ss[1]
 		}
 	}
-	return "errorHappened"
+	return ""
 }
 
 func GetJsonTagValue(tag string) string {
 	return GetTagValue(tag, "json")
+}
+
+func GetJsonTagName(tag *ast.BasicLit) (string, error) {
+	keys := ExtractTagsByKey(tag)
+	if v, ok := keys["json"]; ok {
+		return strings.ReplaceAll(v[0], ",omitempty", ""), nil
+	}
+	return "", errors.New("json tag not found in tag")
 }
 
 type TagCombiner interface {
