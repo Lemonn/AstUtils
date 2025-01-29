@@ -125,8 +125,8 @@ func IsBasicField(field *ast.Field) bool {
 
 func ExtractTagsByKey(tag *ast.BasicLit, valueMap ...map[string][]string) map[string][]string {
 	var found map[string][]string
-	if valueMap == nil || len(valueMap) == 0 {
-		found = map[string][]string{}
+	if valueMap == nil || len(valueMap) == 0 || valueMap[0] == nil {
+		found = make(map[string][]string)
 	} else {
 		found = valueMap[0]
 	}
@@ -138,7 +138,7 @@ func ExtractTagsByKey(tag *ast.BasicLit, valueMap ...map[string][]string) map[st
 	for _, s := range tags {
 		v := strings.SplitN(strings.ReplaceAll(s, "\"", ""), ":", 2)
 		if len(v) == 1 {
-			v = append(v, "")
+			continue
 		}
 		if _, ok := found[v[0]]; !ok {
 			found[v[0]] = []string{v[1]}
