@@ -209,3 +209,20 @@ func CombineTags(tag1, tag2 *ast.BasicLit, combiners map[string]TagCombiner) (*a
 	}
 	return &ast.BasicLit{}, nil
 }
+
+func RemoveTag(key string, lit *ast.BasicLit) *ast.BasicLit {
+	tags := ExtractTagsByKey(lit, nil)
+	delete(tags, key)
+	var TagString string
+	for k, v := range tags {
+		TagString += k + ":\"" + v[0] + "\" "
+	}
+	if TagString != "" {
+		return &ast.BasicLit{
+			ValuePos: 0,
+			Kind:     token.STRING,
+			Value:    "`" + TagString + "`",
+		}
+	}
+	return &ast.BasicLit{}
+}
