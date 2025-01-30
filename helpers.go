@@ -2,9 +2,12 @@ package AstUtils
 
 import (
 	"errors"
+	"fmt"
 	"go/ast"
+	"go/parser"
 	"go/token"
 	"regexp"
+	"sort"
 	"strings"
 	"unicode"
 )
@@ -45,12 +48,9 @@ func PreviouslyModified(file *ast.File, searchString string) bool {
 
 func AddMissingImports(file *ast.File, imports []string) {
 	requiredImports := map[string]bool{}
-	for _, imp := range imports {
-		requiredImports[imp] = true
-	}
-
 	var importSpecs []*FoundNodes
 	var completed bool
+	var specs []ast.Spec
 	SearchNodes(file, &importSpecs, []*ast.Node{}, func(n *ast.Node, parents []*ast.Node, completed *bool) bool {
 		if _, ok := (*n).(*ast.ImportSpec); ok {
 			return true
@@ -59,6 +59,7 @@ func AddMissingImports(file *ast.File, imports []string) {
 	}, &completed)
 
 	for i, spec := range importSpecs {
+		imports = append(imports)
 		requiredImports[strings.ReplaceAll((*spec.Node).(*ast.ImportSpec).Path.Value, "\"", "")] = true
 		for i2, parent := range spec.Parents {
 			if _, ok := (*parent).(*ast.GenDecl); ok {
@@ -72,49 +73,24 @@ func AddMissingImports(file *ast.File, imports []string) {
 			}
 		}
 	}
-	var specs []ast.Spec
-	for importString, _ := range requiredImports {
+
+	for _, imp := range imports {
+		requiredImports[imp] = true
+	}
+
+	imports = []string{}
+	for s, _ := range requiredImports {
+		imports = append(imports, s)
+	}
+	sort.Strings(imports)
+
+	for _, importString := range imports {
 		specs = append(specs, &ast.ImportSpec{
 			Path: &ast.BasicLit{
 				Kind:  token.STRING,
 				Value: "\"" + importString + "\"",
 			},
 		})
-	}
-	var _ = &ast.GenDecl{
-		Tok: token.IMPORT,
-		Specs: []ast.Spec{
-			&ast.ImportSpec{
-				Path: &ast.BasicLit{
-					Kind:  token.STRING,
-					Value: "\"encoding/json\"",
-				},
-			},
-			&ast.ImportSpec{
-				Path: &ast.BasicLit{
-					Kind:  token.STRING,
-					Value: "\"errors\"",
-				},
-			},
-			&ast.ImportSpec{
-				Path: &ast.BasicLit{
-					Kind:  token.STRING,
-					Value: "\"fmt\"",
-				},
-			},
-			&ast.ImportSpec{
-				Path: &ast.BasicLit{
-					Kind:  token.STRING,
-					Value: "\"github.com/google/uuid\"",
-				},
-			},
-			&ast.ImportSpec{
-				Path: &ast.BasicLit{
-					Kind:  token.STRING,
-					Value: "\"time\"",
-				},
-			},
-		},
 	}
 	file.Decls = append([]ast.Decl{&ast.GenDecl{
 		Tok:   token.IMPORT,
@@ -273,4 +249,17 @@ func RemoveTag(key string, lit *ast.BasicLit) *ast.BasicLit {
 		}
 	}
 	return &ast.BasicLit{}
+}
+
+func GetEmptyFile(packageName string) (*ast.File, error) {
+	fset := token.NewFileSet()
+	file, err := parser.ParseFile(fset, "", "package "+packageName, parser.ParseComments)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	if file.Decls == nil {
+		file.Decls = []ast.Decl{}
+	}
+	return file, nil
 }
