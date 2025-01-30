@@ -59,6 +59,7 @@ func AddMissingImports(file *ast.File, imports []string) {
 	}, &completed)
 
 	for i, spec := range importSpecs {
+		requiredImports[strings.ReplaceAll((*spec.Node).(*ast.ImportSpec).Path.Value, "\"", "")] = true
 		for i2, parent := range spec.Parents {
 			if _, ok := (*parent).(*ast.GenDecl); ok {
 				for i3, _ := range file.Decls {
