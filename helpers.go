@@ -66,7 +66,6 @@ func AddMissingImports(file *ast.File, imports []string) {
 					if (*importSpecs[i].Parents[i2]).(*ast.GenDecl) == file.Decls[i3] {
 						file.Decls[i3] = file.Decls[len(file.Decls)-1]
 						file.Decls = file.Decls[:len(file.Decls)-1]
-						requiredImports[strings.ReplaceAll((*spec.Node).(*ast.ImportSpec).Path.Value, "\"", "")] = true
 						break
 					}
 				}
