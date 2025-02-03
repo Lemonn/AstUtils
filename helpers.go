@@ -263,3 +263,46 @@ func GetEmptyFile(packageName string) (*ast.File, error) {
 	}
 	return file, nil
 }
+
+func DeleteTagByKey(lit *ast.BasicLit, tagKey string) *ast.BasicLit {
+	tagString := strings.ReplaceAll(lit.Value, "`", "")
+	tags := strings.Split(tagString, " ")
+	tagString = ""
+	for _, tag := range tags {
+		fmt.Println(tag)
+		if !strings.Contains(tag, tagKey) {
+			tagString += tag
+		}
+	}
+	if tagString != "" {
+		tagString = "`" + tagString + "`"
+		return &ast.BasicLit{
+			Kind:  token.STRING,
+			Value: tagString,
+		}
+	}
+	return nil
+}
+
+func TagsEqual(lit0, lit1 *ast.BasicLit) bool {
+	tagMap := make(map[string]string)
+	tagString0 := strings.ReplaceAll(lit0.Value, "`", "")
+	tags0 := strings.Split(tagString0, " ")
+	for _, tag0 := range tags0 {
+		if strings.Contains(tag0, ":") {
+			kv0 := strings.Split(strings.ReplaceAll(tag0, " ", ""), ":")
+			tagMap[kv0[0]] = kv0[1]
+		}
+	}
+	tagString1 := strings.ReplaceAll(lit1.Value, "`", "")
+	tags1 := strings.Split(tagString1, " ")
+	for _, tag1 := range tags1 {
+		if strings.Contains(tag1, ":") {
+			kv1 := strings.Split(strings.ReplaceAll(tag1, " ", ""), ":")
+			if v, ok := tagMap[kv1[0]]; !ok || v != kv1[1] {
+				return false
+			}
+		}
+	}
+	return true
+}
