@@ -46,6 +46,9 @@ func PreviouslyModified(file *ast.File, searchString string) bool {
 }
 
 func AddMissingImports(file *ast.File, imports []string) {
+	if imports == nil || len(imports) == 0 {
+		return
+	}
 	requiredImports := map[string]bool{}
 	var importSpecs []*FoundNodes
 	var completed bool
