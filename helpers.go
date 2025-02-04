@@ -268,7 +268,7 @@ func DeleteTagByKey(lit *ast.BasicLit, tagKey string) *ast.BasicLit {
 	tagString = ""
 	for _, tag := range tags {
 		if !strings.Contains(tag, tagKey) {
-			tagString += tag
+			tagString += tag + " "
 		}
 	}
 	if tagString != "" {
