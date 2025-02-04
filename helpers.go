@@ -2,7 +2,6 @@ package AstUtils
 
 import (
 	"errors"
-	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -255,7 +254,6 @@ func GetEmptyFile(packageName string) (*ast.File, error) {
 	fset := token.NewFileSet()
 	file, err := parser.ParseFile(fset, "", "package "+packageName, parser.ParseComments)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	if file.Decls == nil {
@@ -269,7 +267,6 @@ func DeleteTagByKey(lit *ast.BasicLit, tagKey string) *ast.BasicLit {
 	tags := strings.Split(tagString, " ")
 	tagString = ""
 	for _, tag := range tags {
-		fmt.Println(tag)
 		if !strings.Contains(tag, tagKey) {
 			tagString += tag
 		}
